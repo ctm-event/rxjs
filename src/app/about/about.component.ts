@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from "@angular/core";
-import { concat, interval, noop, of, Subscription } from "rxjs";
-import { map } from "rxjs/operators";
+import { concat, interval, merge, noop, of, Subscription } from "rxjs";
+import { map, mergeMap } from "rxjs/operators";
 import { createHttpObservable } from "../common/util";
 
 @Component({
@@ -14,15 +14,12 @@ export class AboutComponent implements OnInit, OnDestroy {
   constructor() {}
 
   ngOnInit() {
-    const neverComplete$ = interval(1000);
-    const source1$ = of(1, 2, 3);
-    const source2$ = of(4, 5, 6);
-    const source3$ = of(7, 8, 9);
+    const interval1$ = interval(1000);
+    const interval2$ = interval1$.pipe(map(val => 10 * val));
+    const result$ = merge(interval1$, interval2$);
 
-    const result$ = concat(neverComplete$, source1$, source2$, source3$);
-    const resultSubscription = result$.subscribe(val => console.log(val));
+    result$.subscribe(console.log);
 
-    this.subscriptions.add(resultSubscription);
   }
 
   ngOnDestroy() {
