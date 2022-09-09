@@ -14,11 +14,13 @@ export class AboutComponent implements OnInit, OnDestroy {
   constructor() {}
 
   ngOnInit() {
-    const interval1$ = interval(1000);
-    const interval2$ = interval1$.pipe(map(val => 10 * val));
-    const result$ = merge(interval1$, interval2$);
+    const http$ = createHttpObservable('/courses');
 
-    result$.subscribe(console.log);
+    const httpSubscription = http$.subscribe();
+
+    setTimeout(() => {
+      httpSubscription.unsubscribe();
+    }, 0);
 
   }
 
