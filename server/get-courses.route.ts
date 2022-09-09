@@ -18,8 +18,9 @@ export function getAllCourses(req: Request, res: Response) {
     */
 
     setTimeout(() => {
+        res.status(500).json({ message: "Error occured." });
 
-        res.status(200).json({payload:Object.values(COURSES)});
+        // res.status(200).json({payload:Object.values(COURSES)});
 
     }, 200);
 

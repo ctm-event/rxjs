@@ -1,11 +1,11 @@
 import { Observable } from "rxjs";
 
-const apiEndpoint = "http://localhost:9000/api";
+const apiEndpoint = "/api";
 
-export function createHttpObservable(
+export function createHttpObservable<T extends Object>(
   url: string,
   options = {}
-): Observable<Object> {
+): Observable<T> {
   return new Observable((observer) => {
     const abortController = new AbortController();
     const signal = abortController.signal;
