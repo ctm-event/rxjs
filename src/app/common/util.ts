@@ -16,7 +16,10 @@ export function createHttpObservable<T extends Object>(
 
     fetch(apiEndpoint + url, options)
       .then((response) => {
-        return response.json();
+        if (response.ok) {
+          return response.json();
+        }
+        observer.error(response.status);
       })
       .then((body) => {
         observer.next(body);
