@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 import { BehaviorSubject, from, Observable } from "rxjs";
-import { map, tap } from "rxjs/operators";
+import { filter, map, tap } from "rxjs/operators";
 import { Course } from "../model/course";
 import { createHttpObservable } from "./util";
 
@@ -36,10 +36,23 @@ export class Store {
     return this.filterByCategory(CourseCategory.ADVANCED);
   }
 
+  selectCourseById(courseId: number): Observable<Course> {
+    return this.courses$.pipe(
+      map((courses) => {
+        return courses.find((course) => course.id === courseId);
+      }),
+      filter(course => !!course)
+    );
+  }
+
   save(courseId: number, changes: Course) {
     const courses = this.subject.getValue();
+    console.log("courseId", courseId);
+
     const courseIndex = courses.findIndex((course) => {
-      course.id === courseId;
+      console.log("course.id", course.id);
+
+      return course.id === courseId;
     });
 
     const newCourses = courses.slice(0);
@@ -47,12 +60,6 @@ export class Store {
       ...courses[courseIndex],
       ...changes,
     };
-    console.log("new change", newCourses);
-
-    setTimeout(() => {
-
-      this.subject.next(newCourses);
-    }, 1000)
 
     return from(
       fetch("/api/courses/" + courseId, {
@@ -61,6 +68,11 @@ export class Store {
         headers: {
           "content-type": "application/json",
         },
+      }).then((res) => {
+        if (res.ok) {
+          this.subject.next(newCourses);
+        }
+        return res;
       })
     );
   }

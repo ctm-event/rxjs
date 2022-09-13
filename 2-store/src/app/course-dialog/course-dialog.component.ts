@@ -16,7 +16,6 @@ import { Store } from '../common/store.service';
 export class CourseDialogComponent implements AfterViewInit {
   form: FormGroup;
 
-  course: Course;
 
   @ViewChild("saveButton", { static: true }) saveButton: ElementRef;
 
@@ -25,7 +24,7 @@ export class CourseDialogComponent implements AfterViewInit {
   constructor(
     private fb: FormBuilder,
     private dialogRef: MatDialogRef<CourseDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) course: Course,
+    @Inject(MAT_DIALOG_DATA) public course: Course,
     private store: Store
   ) {
     this.course = course;
