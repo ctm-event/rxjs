@@ -1,8 +1,7 @@
 import { Injectable } from "@angular/core";
-import { BehaviorSubject, Observable, Subject } from "rxjs";
+import { BehaviorSubject, from, Observable } from "rxjs";
 import { map, tap } from "rxjs/operators";
 import { Course } from "../model/course";
-import { Lesson } from "../model/lesson";
 import { createHttpObservable } from "./util";
 
 export enum CourseCategory {
@@ -14,12 +13,14 @@ export enum CourseCategory {
   providedIn: "root",
 })
 export class Store {
-  private subject: Subject<Course[]> = new BehaviorSubject<Course[]>([]);
+  private subject: BehaviorSubject<Course[]> = new BehaviorSubject<Course[]>(
+    []
+  );
   courses$: Observable<Course[]> = this.subject.asObservable();
 
   init() {
     const http$ = createHttpObservable("/api/courses");
-    const courses$: Observable<Course[]> = http$
+    http$
       .pipe(
         tap(() => console.log("HTTP request executed")),
         map((res) => Object.values(res["payload"]))
@@ -27,7 +28,7 @@ export class Store {
       .subscribe((courses) => this.subject.next(courses));
   }
 
-  selectBeginnerCourses() {
+  selectBeginnerCourses(): Observable<Course[]> {
     return this.filterByCategory(CourseCategory.BEGINNER);
   }
 
@@ -35,7 +36,36 @@ export class Store {
     return this.filterByCategory(CourseCategory.ADVANCED);
   }
 
-  private filterByCategory(category: CourseCategory) {
+  save(courseId: number, changes: Course) {
+    const courses = this.subject.getValue();
+    const courseIndex = courses.findIndex((course) => {
+      course.id === courseId;
+    });
+
+    const newCourses = courses.slice(0);
+    newCourses[courseIndex] = {
+      ...courses[courseIndex],
+      ...changes,
+    };
+    console.log("new change", newCourses);
+
+    setTimeout(() => {
+
+      this.subject.next(newCourses);
+    }, 1000)
+
+    return from(
+      fetch("/api/courses/" + courseId, {
+        method: "PUT",
+        body: JSON.stringify(changes),
+        headers: {
+          "content-type": "application/json",
+        },
+      })
+    );
+  }
+
+  private filterByCategory(category: CourseCategory): Observable<Course[]> {
     return this.courses$.pipe(
       map((courses) => courses.filter((course) => course.category == category))
     );

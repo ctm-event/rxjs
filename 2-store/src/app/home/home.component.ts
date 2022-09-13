@@ -28,5 +28,12 @@ export class HomeComponent implements OnInit {
   ngOnInit() {
     this.beginnerCourses$ = this.store.selectBeginnerCourses();
     this.advancedCourses$ = this.store.selectAdvancedCourses();
+
+    const testBeginnerCourses$ = this.store.selectBeginnerCourses();
+    testBeginnerCourses$.subscribe((courses: Course[]) => {
+      console.log(courses);
+    });
+
+
   }
 }
